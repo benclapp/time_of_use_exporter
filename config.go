@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"time"
 
 	"github.com/fsnotify/fsnotify"
 	"gopkg.in/yaml.v2"
@@ -28,9 +29,11 @@ type timeOfUse struct {
 }
 
 type timeWindow struct {
-	Value float64 `yaml:"value"`
-	Start string  `yaml:"start"`
-	End   string  `yaml:"end"`
+	Value         float64 `yaml:"value"`
+	Start         string  `yaml:"start"`
+	End           string  `yaml:"end"`
+	startDuration time.Duration
+	endDuration   time.Duration
 }
 
 var liveConfig = config{}
@@ -104,5 +107,8 @@ func loadConfig(filepath string) (config, error) {
 	if err != nil {
 		return config{}, err
 	}
+
+	// TODO: Verify timezones are valid
+	// TODO: Parse startDuration/endDuration on conflig load
 	return c, nil
 }

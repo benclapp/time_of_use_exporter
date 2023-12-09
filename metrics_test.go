@@ -34,6 +34,30 @@ func verifyMetricDescription(d *prometheus.Desc, t *testing.T) (bool, string) {
 	return false, ""
 }
 
+func TestDescribeLocalizedTimezones(t *testing.T) {
+	testCh := make(chan *prometheus.Desc)
+	go describeLocalizedTimezones(testCh)
+
+	var oc map[string]int = observationCount
+
+	for i := 0; i < len(oc); i++ {
+		ok, n := verifyMetricDescription(<-testCh, t)
+		if ok {
+			oc[n]++
+		}
+	}
+
+	select {
+	case d := <-testCh:
+		assert.Equal(t, nil, d, "Channel should be empty, more metric descriptors than expected")
+	default:
+	}
+
+	for k, v := range oc {
+		assert.Equal(t, 1, v, k+" should have been observed exactly once")
+	}
+}
+
 func TestCollectLocalizedTimezones(t *testing.T) {
 	testCollectCh := make(chan prometheus.Metric)
 	liveConfig = config{LocalizedTimezones: []string{
@@ -87,30 +111,6 @@ func TestCollectLocalizedTimezones(t *testing.T) {
 	select {
 	case m := <-testCollectCh:
 		assert.Equal(t, nil, m, "Channel should be empty, more metrics than expected")
-	default:
-	}
-
-	for k, v := range oc {
-		assert.Equal(t, 1, v, k+" should have been observed exactly once")
-	}
-}
-
-func TestDescribeLocalizedTimezones(t *testing.T) {
-	testCh := make(chan *prometheus.Desc)
-	go describeLocalizedTimezones(testCh)
-
-	var oc map[string]int = observationCount
-
-	for i := 0; i < len(oc); i++ {
-		ok, n := verifyMetricDescription(<-testCh, t)
-		if ok {
-			oc[n]++
-		}
-	}
-
-	select {
-	case d := <-testCh:
-		assert.Equal(t, nil, d, "Channel should be empty, more metric descriptors than expected")
 	default:
 	}
 
