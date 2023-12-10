@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log/slog"
 	"os"
 	"time"
@@ -96,7 +95,7 @@ func configWatcher(filepath string) {
 }
 
 func loadConfig(filepath string) (config, error) {
-	fmt.Println("Loading config")
+	slog.Info("Loading config", "filepath", filepath)
 	f, err := os.ReadFile(filepath)
 	if err != nil {
 		return config{}, err
@@ -108,7 +107,36 @@ func loadConfig(filepath string) (config, error) {
 		return config{}, err
 	}
 
-	// TODO: Verify timezones are valid
-	// TODO: Parse startDuration/endDuration on conflig load
+	for _, loc := range c.LocalizedTimezones {
+		_, err := time.LoadLocation(loc)
+		if err != nil {
+			return config{}, err
+		}
+	}
+
+	for i, tou := range c.TimeOfUse {
+		for j, tw := range tou.TimeWindows {
+			c.TimeOfUse[i].TimeWindows[j].startDuration, err = calculateDuration(tw.Start)
+			if err != nil {
+				slog.Error("Error parsing time window start", "err", err, "time_of_use", tou.Name, "time_window", tw)
+				return config{}, err
+			}
+
+			c.TimeOfUse[i].TimeWindows[j].endDuration, err = calculateDuration(tw.End)
+			if err != nil {
+				slog.Error("Error parsing time window end", "err", err, "time_of_use", tou.Name, "time_window", tw)
+				return config{}, err
+			}
+		}
+	}
+
 	return c, nil
+}
+
+func calculateDuration(t string) (time.Duration, error) {
+	d, err := time.ParseDuration(t)
+	if err != nil {
+		return 0, err
+	}
+	return d, nil
 }
