@@ -1,8 +1,5 @@
 localized_timezones:
 - Pacific/Auckland
-- Pacific/Chatham
-- Australia/Sydney
-- America/Los_Angeles
 
 time_of_use:
 - name: electricity_price
@@ -13,5 +10,5 @@ time_of_use:
   default_value: 0.1106
   time_windows:
   - value: 0.2423
-    start: '7h0m'
-    end: '21h0m'
+    start: '7:00'
+    end: '21:00'

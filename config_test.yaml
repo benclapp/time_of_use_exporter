@@ -11,5 +11,5 @@ time_of_use:
   default_value: 0.1106
   time_windows:
   - value: 0.2423
-    start: '7h'
-    end: '21h'
+    start: '07:00'
+    end: '21:00'

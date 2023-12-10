@@ -33,10 +33,9 @@ func calculateTOUValue(tou timeOfUse, now time.Time) float64 {
 }
 
 func isWithinTimeWindow(tw timeWindow, now time.Time) bool {
-	basedDay := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
-	if now.Equal(basedDay.Add(tw.startDuration)) ||
-		now.After(basedDay.Add(tw.startDuration)) &&
-			now.Before(basedDay.Add(tw.endDuration)) {
+	start := time.Date(now.Year(), now.Month(), now.Day(), tw.startHour, tw.startMinute, 0, 0, now.Location())
+	end := time.Date(now.Year(), now.Month(), now.Day(), tw.endHour, tw.endMinute, 0, 0, now.Location())
+	if now.Equal(start) || now.After(start) && now.Before(end) {
 		return true
 	}
 	return false

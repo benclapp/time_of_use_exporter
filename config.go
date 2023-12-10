@@ -1,8 +1,12 @@
 package main
 
 import (
+	"errors"
+	"fmt"
 	"log/slog"
 	"os"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/fsnotify/fsnotify"
@@ -28,11 +32,13 @@ type timeOfUse struct {
 }
 
 type timeWindow struct {
-	Value         float64 `yaml:"value"`
-	Start         string  `yaml:"start"`
-	End           string  `yaml:"end"`
-	startDuration time.Duration
-	endDuration   time.Duration
+	Value       float64 `yaml:"value"`
+	Start       string  `yaml:"start"`
+	End         string  `yaml:"end"`
+	startHour   int
+	startMinute int
+	endHour     int
+	endMinute   int
 }
 
 var liveConfig = config{}
@@ -122,13 +128,13 @@ func loadConfig(filepath string) (config, error) {
 		}
 
 		for j, tw := range tou.TimeWindows {
-			c.TimeOfUse[i].TimeWindows[j].startDuration, err = calculateDuration(tw.Start)
+			c.TimeOfUse[i].TimeWindows[j].startHour, c.TimeOfUse[i].TimeWindows[j].startMinute, err = calculateDuration(tw.Start)
 			if err != nil {
 				slog.Error("Error parsing time window start", "err", err, "time_of_use", tou.Name, "time_window", tw)
 				return config{}, err
 			}
 
-			c.TimeOfUse[i].TimeWindows[j].endDuration, err = calculateDuration(tw.End)
+			c.TimeOfUse[i].TimeWindows[j].endHour, c.TimeOfUse[i].TimeWindows[j].endMinute, err = calculateDuration(tw.End)
 			if err != nil {
 				slog.Error("Error parsing time window end", "err", err, "time_of_use", tou.Name, "time_window", tw)
 				return config{}, err
@@ -139,10 +145,30 @@ func loadConfig(filepath string) (config, error) {
 	return c, nil
 }
 
-func calculateDuration(t string) (time.Duration, error) {
-	d, err := time.ParseDuration(t)
-	if err != nil {
-		return 0, err
+func calculateDuration(t string) (int, int, error) {
+	// Split string by :
+	parts := strings.Split(t, ":")
+	if len(parts) != 2 {
+		return 0, 0, fmt.Errorf(`Invalid time format. Must be hh:mm. Got: "%s"`, t)
 	}
-	return d, nil
+	// Convert both sides to int
+	h, err := strconv.Atoi(parts[0])
+	if err != nil || h < 0 || h > 23 {
+		return 0, 0, fmt.Errorf(
+			`Error when parsing hh. Invalid hour format. Must be a number, and 0-23. Got: "%s" err: %s`,
+			parts[0],
+			err.Error(),
+		)
+	}
+
+	m, err := strconv.Atoi(parts[1])
+	if err != nil || m < 0 || m > 59 {
+		return 0, 0, errors.New(fmt.Sprintf(
+			`Error when parsing mm. Invalid minute format. Must be a number, and 0-59. Got: "%s" err: %s`,
+			parts[1],
+			err.Error(),
+		))
+	}
+
+	return h, m, nil
 }

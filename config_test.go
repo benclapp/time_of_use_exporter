@@ -34,11 +34,11 @@ func TestLoadConfig(t *testing.T) {
 						Labels:       map[string]string{"provider": "Power Co"},
 						DefaultValue: 0.1106,
 						TimeWindows: []timeWindow{{
-							Value:         0.2423,
-							Start:         "7h",
-							End:           "21h",
-							startDuration: 7 * time.Hour,
-							endDuration:   21 * time.Hour,
+							Value:     0.2423,
+							Start:     "07:00",
+							End:       "21:00",
+							startHour: 7,
+							endHour:   21,
 						}},
 					},
 				}}, c,
@@ -82,35 +82,47 @@ func TestConfigInit(t *testing.T) {
 
 func TestCalculateDurations(t *testing.T) {
 	testCases := map[string]struct {
-		input    string
-		expected time.Duration
-		err      error
+		input     string
+		expectedH int
+		expectedM int
+		err       error
 	}{
 		"standard": {
-			input:    "13h",
-			expected: 13 * time.Hour,
-			err:      nil,
+			input:     "13:00",
+			expectedH: 13,
+			expectedM: 0,
+			err:       nil,
 		},
 		"multiple units": {
-			input:    "15h30m5s",
-			expected: 15*time.Hour + 30*time.Minute + 5*time.Second,
-			err:      nil,
+			input:     "15:30",
+			expectedH: 15,
+			expectedM: 30,
+			err:       nil,
 		},
-		"time code": {
-			input:    "19:00",
-			expected: 0,
-			err:      errors.New(`time: unknown unit ":" in duration "19:00"`),
+		"unsupported second resolution": {
+			input:     "15:30:00",
+			expectedH: 0,
+			expectedM: 0,
+			err:       errors.New(`Invalid time format. Must be hh:mm. Got: "15:30:00"`),
+		},
+		"duration": {
+			input:     "19h13m",
+			expectedH: 0,
+			expectedM: 0,
+			err:       errors.New(`Invalid time format. Must be hh:mm. Got: "19h13m"`),
 		},
 		"empty string": {
-			input:    "",
-			expected: 0,
-			err:      errors.New(`time: invalid duration ""`),
+			input:     "",
+			expectedH: 0,
+			expectedM: 0,
+			err:       errors.New(`Invalid time format. Must be hh:mm. Got: ""`),
 		},
 	}
 
 	for name, tc := range testCases {
-		actual, err := calculateDuration(tc.input)
-		assert.Equal(t, tc.expected, actual, name)
+		actualH, actualM, err := calculateDuration(tc.input)
+		assert.Equal(t, tc.expectedH, actualH, name)
+		assert.Equal(t, tc.expectedM, actualM, name)
 		assert.Equal(t, tc.err, err, name)
 	}
 }

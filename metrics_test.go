@@ -38,7 +38,10 @@ func TestDescribeLocalizedTimezones(t *testing.T) {
 	testCh := make(chan *prometheus.Desc)
 	go describeLocalizedTimezones(testCh)
 
-	var oc map[string]int = observationCount
+	oc := observationCount
+	for k, _ := range oc {
+		oc[k] = 0
+	}
 
 	for i := 0; i < len(oc); i++ {
 		ok, n := verifyMetricDescription(<-testCh, t)
@@ -66,9 +69,8 @@ func TestCollectLocalizedTimezones(t *testing.T) {
 	tTime := time.Date(2023, 1, 31, 20, 3, 4, 0, time.UTC)
 	go collectLocalizedTimezones(testCollectCh, tTime)
 
-	// var oc map[string]int = observationCount
-	var oc = map[string]int{}
-	for k, _ := range observationCount {
+	oc := observationCount
+	for k, _ := range oc {
 		oc[k] = 0
 	}
 
