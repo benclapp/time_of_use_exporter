@@ -115,6 +115,12 @@ func loadConfig(filepath string) (config, error) {
 	}
 
 	for i, tou := range c.TimeOfUse {
+		_, err := time.LoadLocation(tou.Timezone)
+		if err != nil {
+			slog.Error("Error parsing timezone", "err", err, "time_of_use", tou.Name, "timezone", tou.Timezone)
+			return config{}, err
+		}
+
 		for j, tw := range tou.TimeWindows {
 			c.TimeOfUse[i].TimeWindows[j].startDuration, err = calculateDuration(tw.Start)
 			if err != nil {
