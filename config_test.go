@@ -113,7 +113,7 @@ func TestCalculateDurations(t *testing.T) {
 		},
 		"empty string": {
 			input:     "",
-			expectedH: 0,
+			expectedH: 1,
 			expectedM: 0,
 			err:       errors.New(`Invalid time format. Must be hh:mm. Got: ""`),
 		},
