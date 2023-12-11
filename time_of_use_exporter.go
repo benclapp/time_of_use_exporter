@@ -13,10 +13,24 @@ import (
 type Exporter struct{}
 
 func main() {
+	var logLevel slog.Level
+	switch os.Getenv("LOG_LEVEL") {
+	case "debug":
+		logLevel = slog.LevelDebug
+	case "info":
+		logLevel = slog.LevelInfo
+	case "warning":
+		logLevel = slog.LevelWarn
+	case "error":
+		logLevel = slog.LevelError
+	default:
+		logLevel = slog.LevelInfo
+	}
+
 	slog.SetDefault(slog.New(slog.NewTextHandler(
 		os.Stdout, &slog.HandlerOptions{
 			AddSource: true,
-			Level:     slog.LevelInfo,
+			Level:     logLevel,
 		})))
 
 	configInit()
@@ -33,6 +47,10 @@ func main() {
 			</body>
 			</html>`))
 	})
-
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	addr := os.Getenv("LISTEN_ADDR")
+	if addr == "" {
+		addr = ":8080"
+	}
+	slog.Info("Starting Time of Use Exporter", "LISTEN_ADDR", addr, "LOG_LEVEL", logLevel)
+	log.Fatal(http.ListenAndServe(addr, nil))
 }

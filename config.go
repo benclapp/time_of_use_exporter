@@ -44,7 +44,7 @@ type timeWindow struct {
 var liveConfig = config{}
 
 func configInit() {
-	f := "config.yaml"
+	f := "./config.yaml"
 	if os.Getenv("CONFIG_FILE") != "" {
 		f = os.Getenv("CONFIG_FILE")
 	}
@@ -81,7 +81,7 @@ func configWatcher(filepath string) {
 					liveConfig = c
 				}
 			case err, ok := <-watcher.Errors:
-				slog.Info("Watcher error", "err", err, "ok", ok)
+				slog.Debug("Watcher error", "err", err, "ok", ok)
 				if !ok {
 					return
 				}

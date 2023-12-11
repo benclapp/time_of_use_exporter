@@ -6,7 +6,17 @@ This exporter exposes Prometheus metrics based on configured time windows, and t
 
 ## Config
 
-Time of use metrics are configured with a configuration file. An annotated example:
+Environment variables:
+
+| variable      | description                                                           | default         |
+| ------------- | --------------------------------------------------------------------- | --------------- |
+| `LISTEN_ADDR` | Address to listen for metrics on                                      | `:8080`         |
+| `CONFIG_FILE` | Relative path to the configuration file.                              | `./config.yaml` |
+| `LOG_LEVEL`   | Log level. Accepted values are: "debug", "info", "warn", and "error". | `info`          |
+
+Time of use metrics are configured with a configuration file. Changes to this file while the exporter is running will be automatically reloaded.
+
+An annotated example:
 
 ```yaml
 # Timezones to produce timezone specific series for.
@@ -39,6 +49,7 @@ time_of_use:
     start: '7:00'
     # end of the window
     end: '9:00'
+
   - value: 0.19
     start: '9:00'
     end: '17:00'
