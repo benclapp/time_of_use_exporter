@@ -6,6 +6,10 @@ import (
 	"net/http"
 	"os"
 
+	// Import timezone data as a backup if not provided by the OS
+	// For example, in the Dockerfile built from scratch, if host OS path isn't mounted
+	_ "time/tzdata"
+
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
