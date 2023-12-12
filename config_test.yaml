@@ -1,0 +1,15 @@
+# Used for tests in config_test.go
+localized_timezones:
+- Pacific/Auckland
+
+time_of_use:
+- name: electricity_price
+  description: Electricity price
+  timezone: Pacific/Auckland
+  labels:
+    provider: Power Co
+  default_value: 0.1106
+  time_windows:
+  - value: 0.2423
+    start: '07:00'
+    end: '21:00'
