@@ -10,7 +10,7 @@ Environment variables:
 
 | variable      | description                                                           | default         |
 | ------------- | --------------------------------------------------------------------- | --------------- |
-| `LISTEN_ADDR` | Address to listen for metrics on                                      | `:8080`         |
+| `LISTEN_ADDR` | Address to listen for metrics on                                      | `:10007`        |
 | `CONFIG_FILE` | Relative path to the configuration file.                              | `./config.yaml` |
 | `LOG_LEVEL`   | Log level. Accepted values are: "debug", "info", "warn", and "error". | `info`          |
 

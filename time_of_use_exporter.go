@@ -49,7 +49,7 @@ func main() {
 	})
 	addr := os.Getenv("LISTEN_ADDR")
 	if addr == "" {
-		addr = ":8080"
+		addr = ":10007"
 	}
 	slog.Info("Starting Time of Use Exporter", "LISTEN_ADDR", addr, "LOG_LEVEL", logLevel)
 	log.Fatal(http.ListenAndServe(addr, nil))
