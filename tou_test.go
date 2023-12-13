@@ -49,10 +49,39 @@ func TestDescribeTOUMetric(t *testing.T) {
 				nil, map[string]string{"tz": "UTC", "foo": "bar"},
 			),
 		},
+		"tw labels overrides default": {
+			inputTou: timeOfUse{
+				Name:        "tw_labels_overrides_default",
+				Description: "tw labels overrides default description",
+				Labels: map[string]string{
+					"foo": "bar", "baz": "qux",
+				},
+				TimeWindows: []timeWindow{{
+					startHour:   11,
+					startMinute: 00,
+					endHour:     13,
+					endMinute:   00,
+					Labels: map[string]string{
+						"foo": "baz",
+					},
+				}},
+			},
+			expectedDesc: prometheus.NewDesc(
+				"tw_labels_overrides_default", "tw labels overrides default description",
+				nil, map[string]string{"tz": "UTC", "foo": "baz", "baz": "qux"},
+			),
+		},
 	}
 
 	for name, tc := range tcs {
-		v := describeTOUMetric(tc.inputTou)
+		loc, err := time.LoadLocation(tc.inputTou.Timezone)
+		if err != nil {
+			t.Fatal("error loading timezone required for test", "err", err)
+		}
+		v := describeTOUMetric(
+			tc.inputTou,
+			time.Date(2023, 12, 13, 12, 00, 00, 00, loc),
+		)
 		assert.Equal(t, tc.expectedDesc, v, "test case %s failed", name)
 	}
 }

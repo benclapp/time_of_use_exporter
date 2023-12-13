@@ -43,6 +43,7 @@ func describeLocalizedTimezones(ch chan<- *prometheus.Desc) {
 
 func collectLocalizedTimezones(ch chan<- prometheus.Metric, utcNow time.Time) {
 	for _, tz := range liveConfig.LocalizedTimezones {
+		slog.Debug("Collecting localized timezone", "tz", tz)
 		loc, err := time.LoadLocation(tz)
 		if err != nil {
 			slog.Error("error loading timezone", "tz", tz, "err", err)
@@ -57,20 +58,29 @@ func collectLocalizedTimezones(ch chan<- prometheus.Metric, utcNow time.Time) {
 }
 
 func describeTOUMetrics(ch chan<- *prometheus.Desc) {
+	slog.Debug("Describing TOU metrics")
 	for _, tou := range liveConfig.TimeOfUse {
-		ch <- describeTOUMetric(tou)
+		loc, err := time.LoadLocation(tou.Timezone)
+		if err != nil {
+			slog.Error("error loading timezone. This should never error as TZ are validated on config load", "err", err, "timezone", tou.Timezone)
+			continue
+		}
+		ch <- describeTOUMetric(tou, time.Now().In(loc))
 	}
 }
 
 func collectTOUMetrics(ch chan<- prometheus.Metric, utcNow time.Time) {
 	for _, tou := range liveConfig.TimeOfUse {
+		// If tou.Timezone is not set, time.LoadLocation returns UTC
+		// Which was not known when this was written, but it saves having
+		// to write logic to handle that case.
 		loc, err := time.LoadLocation(tou.Timezone)
 		if err != nil {
-			slog.Error("error loading timezone. This should never error as TZ are validated on config load", "err", err, "timezon", tou.Timezone)
+			slog.Error("error loading timezone. This should never error as TZ are validated on config load", "err", err, "timezone", tou.Timezone)
 			continue
 		}
 		ch <- prometheus.MustNewConstMetric(
-			describeTOUMetric(tou),
+			describeTOUMetric(tou, utcNow.In(loc)),
 			prometheus.GaugeValue,
 			calculateTOUValue(tou, utcNow.In(loc)),
 		)

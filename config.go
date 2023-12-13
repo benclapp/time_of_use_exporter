@@ -32,9 +32,10 @@ type timeOfUse struct {
 }
 
 type timeWindow struct {
-	Value       float64 `yaml:"value"`
-	Start       string  `yaml:"start"`
-	End         string  `yaml:"end"`
+	Value       float64           `yaml:"value"`
+	Start       string            `yaml:"start"`
+	End         string            `yaml:"end"`
+	Labels      map[string]string `yaml:"labels,omitempty"`
 	startHour   int
 	startMinute int
 	endHour     int
@@ -128,13 +129,14 @@ func loadConfig(filepath string) (config, error) {
 		}
 
 		for j, tw := range tou.TimeWindows {
-			c.TimeOfUse[i].TimeWindows[j].startHour, c.TimeOfUse[i].TimeWindows[j].startMinute, err = calculateDuration(tw.Start)
+			slog.Debug("Parsing time window", "time_of_use", tou.Name, "time_window", tw)
+			c.TimeOfUse[i].TimeWindows[j].startHour, c.TimeOfUse[i].TimeWindows[j].startMinute, err = parseWindowTimes(tw.Start)
 			if err != nil {
 				slog.Error("Error parsing time window start", "err", err, "time_of_use", tou.Name, "time_window", tw)
 				return config{}, err
 			}
 
-			c.TimeOfUse[i].TimeWindows[j].endHour, c.TimeOfUse[i].TimeWindows[j].endMinute, err = calculateDuration(tw.End)
+			c.TimeOfUse[i].TimeWindows[j].endHour, c.TimeOfUse[i].TimeWindows[j].endMinute, err = parseWindowTimes(tw.End)
 			if err != nil {
 				slog.Error("Error parsing time window end", "err", err, "time_of_use", tou.Name, "time_window", tw)
 				return config{}, err
@@ -145,7 +147,7 @@ func loadConfig(filepath string) (config, error) {
 	return c, nil
 }
 
-func calculateDuration(t string) (int, int, error) {
+func parseWindowTimes(t string) (int, int, error) {
 	// Split string by :
 	parts := strings.Split(t, ":")
 	if len(parts) != 2 {

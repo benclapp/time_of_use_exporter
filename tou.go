@@ -1,19 +1,34 @@
 package main
 
 import (
+	"log/slog"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
 )
 
-func describeTOUMetric(tou timeOfUse) *prometheus.Desc {
+func describeTOUMetric(tou timeOfUse, now time.Time) *prometheus.Desc {
 	labels := map[string]string{"tz": "UTC"}
 	if tou.Timezone != "" {
 		labels["tz"] = tou.Timezone
 	}
+	slog.Debug("Building metric desc labels", "tou", tou.Name, "labels", labels, "step", 1)
+
+	// Set default labels from time of use
 	for k, v := range tou.Labels {
 		labels[k] = v
 	}
+	slog.Debug("Building metric desc labels", "tou", tou.Name, "labels", labels, "step", 2)
+
+	// Set override labels from current time window
+	for _, tw := range tou.TimeWindows {
+		if isWithinTimeWindow(tw, now) {
+			for k, v := range tw.Labels {
+				labels[k] = v
+			}
+		}
+	}
+	slog.Debug("Building metric desc labels", "tou", tou.Name, "labels", labels, "step", 3)
 
 	return prometheus.NewDesc(
 		tou.Name,
