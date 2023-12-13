@@ -50,6 +50,12 @@ func calculateTOUValue(tou timeOfUse, now time.Time) float64 {
 func isWithinTimeWindow(tw timeWindow, now time.Time) bool {
 	start := time.Date(now.Year(), now.Month(), now.Day(), tw.startHour, tw.startMinute, 0, 0, now.Location())
 	end := time.Date(now.Year(), now.Month(), now.Day(), tw.endHour, tw.endMinute, 0, 0, now.Location())
+
+	// Handle setting end time to midnight
+	if tw.End == "00:00" || tw.End == "24:00" {
+		end = end.AddDate(0, 0, 1)
+	}
+
 	if now.Equal(start) || now.After(start) && now.Before(end) {
 		return true
 	}

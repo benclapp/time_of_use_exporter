@@ -47,21 +47,27 @@ time_of_use:
     # Override value
   - value: 0.2423
     # Start of the window, in hh:mm 24h format
-    start: '7:00'
+    start: '07:00'
     # end of the window
-    end: '9:00'
+    end: '09:00'
     # Map of labels that will be present within this time window
     # These will override the default labels with a matching name
     labels:
       rate: Peak
   - value: 0.19
-    start: '9:00'
+    start: '09:00'
     end: '17:00'
     labels:
       rate: Day
   - value: 0.2423
     start: '17:00'
     end: '21:00'
+    labels:
+      rate: Peak
+  - value: 0.15
+    start: '21:00'
+    # Can set end as midnight by using either 00:00 or 24:00
+    end: '00:00'
     labels:
       rate: Peak
 

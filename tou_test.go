@@ -187,6 +187,28 @@ func TestIsWIthinTimeWindow(t *testing.T) {
 		},
 		time.Date(2023, 12, 9, 23, 59, 0, 0, time.UTC),
 	), "should not be within time window, boundary check end")
+	assert.Equal(t, true, isWithinTimeWindow(
+		timeWindow{
+			Start:       "23:00",
+			End:         "00:00",
+			startHour:   23,
+			startMinute: 0,
+			endHour:     0,
+			endMinute:   0,
+		},
+		time.Date(2023, 12, 13, 23, 59, 30, 0, time.UTC),
+	), "setting 00:00 as End should register as midnight at EOD")
+	assert.Equal(t, true, isWithinTimeWindow(
+		timeWindow{
+			Start:       "23:00",
+			End:         "24:00",
+			startHour:   23,
+			startMinute: 0,
+			endHour:     24,
+			endMinute:   0,
+		},
+		time.Date(2023, 12, 13, 23, 59, 30, 0, time.UTC),
+	), "setting 00:00 as End should register as midnight at EOD")
 
 	chatham, err := time.LoadLocation("Pacific/Chatham")
 	if err != nil {
