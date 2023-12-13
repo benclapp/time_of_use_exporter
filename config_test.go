@@ -80,7 +80,7 @@ func TestConfigInit(t *testing.T) {
 	assert.Equal(t, testConfig, liveConfig)
 }
 
-func TestCalculateDurations(t *testing.T) {
+func TestparseWindowTimes(t *testing.T) {
 	testCases := map[string]struct {
 		input     string
 		expectedH int
@@ -120,7 +120,7 @@ func TestCalculateDurations(t *testing.T) {
 	}
 
 	for name, tc := range testCases {
-		actualH, actualM, err := calculateDuration(tc.input)
+		actualH, actualM, err := parseWindowTimes(tc.input)
 		assert.Equal(t, tc.expectedH, actualH, name)
 		assert.Equal(t, tc.expectedM, actualM, name)
 		assert.Equal(t, tc.err, err, name)
