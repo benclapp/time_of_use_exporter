@@ -37,6 +37,7 @@ time_of_use:
   labels:
     provider: Power Company
     plan: Zappy
+    rate: Night
   # Value to return if no time windows match
   default_value: 0.1106
   # List of time window overrides for alternate values
@@ -49,12 +50,19 @@ time_of_use:
     start: '7:00'
     # end of the window
     end: '9:00'
-
+    # Map of labels that will be present within this time window
+    # These will override the default labels with a matching name
+    labels:
+      rate: Peak
   - value: 0.19
     start: '9:00'
     end: '17:00'
+    labels:
+      rate: Day
   - value: 0.2423
     start: '17:00'
     end: '21:00'
+    labels:
+      rate: Peak
 
 ```
