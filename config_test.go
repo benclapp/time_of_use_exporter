@@ -80,7 +80,7 @@ func TestConfigInit(t *testing.T) {
 	assert.Equal(t, testConfig, liveConfig)
 }
 
-func TestparseWindowTimes(t *testing.T) {
+func TestParseWindowTimes(t *testing.T) {
 	testCases := map[string]struct {
 		input     string
 		expectedH int
