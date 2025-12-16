@@ -13,10 +13,6 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-// type config struct {
-// 	LocalizedTimezones []string `yaml:"localized_timezones"`
-// }
-
 type config struct {
 	LocalizedTimezones []string    `yaml:"localized_timezones"`
 	TimeOfUse          []timeOfUse `yaml:"time_of_use,omitempty"`
@@ -36,6 +32,7 @@ type timeWindow struct {
 	Start       string            `yaml:"start"`
 	End         string            `yaml:"end"`
 	Labels      map[string]string `yaml:"labels,omitempty"`
+	Days        []int             `yaml:"days,omitempty"`
 	startHour   int
 	startMinute int
 	endHour     int

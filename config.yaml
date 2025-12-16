@@ -6,12 +6,52 @@ time_of_use:
   description: Electricity price
   timezone: Pacific/Auckland
   labels:
-    provider: Meridian Energy
+    provider: Octopus Energy
     rate: Night
-  default_value: 0.1106
+  default_value: 0.172385
   time_windows:
-  - value: 0.2423
-    start: '7:00'
-    end: '21:00'
+  - value: 0.25277
+    start: '11:00'
+    end: '17:00'
     labels:
-      rate: Day
+      rate: Off-peak
+  - value: 0.25277
+    start: '07:00'
+    end: '23:00'
+    days:
+    - 0
+    - 6
+    labels:
+      rate: Off-peak
+
+  - value: 0.34477
+    start: '07:00'
+    end: '11:00'
+    days:
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    labels:
+      rate: Peak
+  - value: 0.34477
+    start: '17:00'
+    end: '21:00'
+    days:
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
+    labels:
+      rate: Peak
+
+  - value: 1.34477
+    start: '17:00'
+    end: '00:00'
+    days:
+    # - 2
+    - 3
+    labels:
+      rate: Testing

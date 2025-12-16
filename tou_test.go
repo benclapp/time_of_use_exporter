@@ -71,6 +71,62 @@ func TestDescribeTOUMetric(t *testing.T) {
 				nil, map[string]string{"tz": "UTC", "foo": "baz", "baz": "qux"},
 			),
 		},
+		"day of week true": {
+			inputTou: timeOfUse{
+				Name:        "dow_filter_true",
+				Description: "Day of week is a match",
+				TimeWindows: []timeWindow{{
+					startHour:   11,
+					startMinute: 0,
+					endHour:     13,
+					endMinute:   0,
+					Days:        []int{3},
+					Labels: map[string]string{
+						"day": "wed",
+					},
+				}},
+			},
+			expectedDesc: prometheus.NewDesc(
+				"dow_filter_true", "Day of week is a match",
+				nil, map[string]string{"tz": "UTC", "day": "wed"},
+			),
+		},
+		"day of week false": {
+			inputTou: timeOfUse{
+				Name:        "dow_filter_false",
+				Description: "Day of week is NOT a match",
+				TimeWindows: []timeWindow{{
+					startHour:   11,
+					startMinute: 0,
+					endHour:     13,
+					endMinute:   0,
+					Days:        []int{2},
+					Labels: map[string]string{
+						"day": "tue",
+					},
+				}},
+			},
+			expectedDesc: prometheus.NewDesc(
+				"dow_filter_false", "Day of week is NOT a match",
+				nil, map[string]string{"tz": "UTC"},
+			),
+		},
+		"day of week nil": {
+			inputTou: timeOfUse{
+				Name:        "dow_filter_nil",
+				Description: "Day of week is nil",
+				TimeWindows: []timeWindow{{
+					startHour:   11,
+					startMinute: 0,
+					endHour:     13,
+					endMinute:   0,
+				}},
+			},
+			expectedDesc: prometheus.NewDesc(
+				"dow_filter_nil", "Day of week is nil",
+				nil, map[string]string{"tz": "UTC"},
+			),
+		},
 	}
 
 	for name, tc := range tcs {
@@ -238,4 +294,33 @@ func TestIsWIthinTimeWindow(t *testing.T) {
 		},
 		time.Date(2023, 12, 9, 0, 0, 0, 1, chatham),
 	), "Check within time window in Chatham timezone")
+	assert.Equal(t, true, isWithinTimeWindow(
+		timeWindow{
+			startHour:   0,
+			startMinute: 0,
+			endHour:     23,
+			endMinute:   59,
+			Days:        []int{3},
+		},
+		time.Date(2023, 12, 13, 12, 0, 0, 0, time.UTC),
+	), "Check Day of week filter for a day match")
+	assert.Equal(t, false, isWithinTimeWindow(
+		timeWindow{
+			startHour:   0,
+			startMinute: 0,
+			endHour:     23,
+			endMinute:   59,
+			Days:        []int{2, 4},
+		},
+		time.Date(2023, 12, 13, 12, 0, 0, 0, time.UTC),
+	), "Check Day of week filter for a day MISS")
+	assert.Equal(t, true, isWithinTimeWindow(
+		timeWindow{
+			startHour:   0,
+			startMinute: 0,
+			endHour:     23,
+			endMinute:   59,
+		},
+		time.Date(2023, 12, 13, 12, 0, 0, 0, time.UTC),
+	), "Check Day of week filter for a day hit if nil")
 }

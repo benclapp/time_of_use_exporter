@@ -2,6 +2,7 @@ package main
 
 import (
 	"log/slog"
+	"slices"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -48,6 +49,10 @@ func calculateTOUValue(tou timeOfUse, now time.Time) float64 {
 }
 
 func isWithinTimeWindow(tw timeWindow, now time.Time) bool {
+	if len(tw.Days) > 0 && !slices.Contains(tw.Days, int(now.Weekday())) {
+		return false
+	}
+
 	start := time.Date(now.Year(), now.Month(), now.Day(), tw.startHour, tw.startMinute, 0, 0, now.Location())
 	end := time.Date(now.Year(), now.Month(), now.Day(), tw.endHour, tw.endMinute, 0, 0, now.Location())
 

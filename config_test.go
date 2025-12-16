@@ -33,13 +33,23 @@ func TestLoadConfig(t *testing.T) {
 						Timezone:     "Pacific/Auckland",
 						Labels:       map[string]string{"provider": "Power Co"},
 						DefaultValue: 0.1106,
-						TimeWindows: []timeWindow{{
-							Value:     0.2423,
-							Start:     "07:00",
-							End:       "21:00",
-							startHour: 7,
-							endHour:   21,
-						}},
+						TimeWindows: []timeWindow{
+							{
+								Value:     0.2423,
+								Start:     "11:00",
+								End:       "21:00",
+								startHour: 11,
+								endHour:   21,
+							},
+							{
+								Value:     0.2423,
+								Start:     "07:00",
+								End:       "11:00",
+								startHour: 7,
+								endHour:   11,
+								Days:      []int{2, 3},
+							},
+						},
 					},
 				}}, c,
 		)
