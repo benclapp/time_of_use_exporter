@@ -64,6 +64,8 @@ time_of_use:
     end: '21:00'
     labels:
       rate: Peak
+    # Days of the week the filter is valid for https://pkg.go.dev/time#Weekday
+    days: [1, 2, 3, 4, 5]
   - value: 0.15
     start: '21:00'
     # Can set end as midnight by using either 00:00 or 24:00
